@@ -1,11 +1,13 @@
 import app from "./app.js";
 import { client, connectDB } from "./config/db.config.js";
+import { createDbIndexes } from "./utils/db.indexes.utils.js";
 
 const PORT = process.env.PORT || 3000;
 
 async function createServer() {
   try {
     const db = await connectDB();
+    await createDbIndexes(db);
     app.locals.db = db;
 
     const server = app.listen(PORT, () => {
@@ -25,14 +27,13 @@ async function createServer() {
             process.exit(1);
           }
         });
-
-        process.on("SIGINT", () => shutdown("SIGINT"));
-        process.on("SIGTERM", () => shutdown("SIGTERM"));
       } catch (error) {
         console.error(error);
         process.exit(1);
       }
     };
+    process.on("SIGINT", () => shutdown("SIGINT"));
+    process.on("SIGTERM", () => shutdown("SIGTERM"));
   } catch (error) {
     console.error(error);
     process.exit(1);
