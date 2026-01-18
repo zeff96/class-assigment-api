@@ -44,3 +44,15 @@ async function findCourseByName(req: Request, res: Response) {
     res.status(500).json({ message: "Internal Server error", error });
   }
 }
+
+async function updateCourse(req: Request, res: Response) {
+  const body = req.body;
+  try {
+    const db = req.app.locals.db;
+    await Course.updateCourse(body.name, body, db);
+    res.status(201).json({ message: "Course updated successfully!" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server error", error });
+  }
+}
