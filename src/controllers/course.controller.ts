@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { Course } from "../models/course.model.js";
 
-export async function createCourse(req: Request, res: Response) {
+async function createCourse(req: Request, res: Response) {
   try {
     const db = req.app.locals.db;
 
@@ -56,3 +56,23 @@ async function updateCourse(req: Request, res: Response) {
     res.status(500).json({ message: "Internal Server error", error });
   }
 }
+
+async function deleteCourse(req: Request, res: Response) {
+  const name = req.body;
+  try {
+    const db = req.app.locals.db;
+    await Course.deleteCourse(name, db);
+    res.json({ message: `Course with name ${name} deleted successfully!` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error", error });
+  }
+}
+
+export {
+  createCourse,
+  fetchAllCourses,
+  findCourseByName,
+  updateCourse,
+  deleteCourse,
+};
