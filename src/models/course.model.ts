@@ -1,54 +1,25 @@
-import type { Request } from "express";
-import type { Db } from "mongodb";
-import type z from "zod";
-import { courseSchema } from "../schemas/course.schemas.js";
+import { Collection, Db } from "mongodb";
 
-export const Course = {
-  async findByName(name: string, db: Db) {
+export class CourseModel {
+  private collection: Collection;
+  constructor(db: Db) {
+    this.collection = db.collection("courses");
+  }
+
+  async create(data: any) {
     try {
-      return await db.collection("courses").findOne({ name });
-    } catch (error) {
-      console.error(error);
-    }
-  },
-  async createCourse(req: Request) {
-    try {
-      const db = req.app.locals.db;
-      const course = {
-        ...req.body,
+      await this.collection.insertOne({
+        ...data,
         createdAt: new Date(),
-      };
-      await db.collection("courses").insertOne(course);
-    } catch (error) {
-      console.error(error);
-    }
-  },
+      });
+    } catch (error) {}
+  }
 
-  async fetchAllCourses(db: Db) {
-    try {
-      return await db.collection("courses").find({}).sort(-1).toArray();
-    } catch (error) {
-      console.error(error);
-    }
-  },
+  async findAll() {
+    return await this.collection.find().toArray();
+  }
 
-  async updateCourse(
-    name: string,
-    fieldsToUpdate: Partial<z.infer<typeof courseSchema>>,
-    db: Db,
-  ) {
-    try {
-      await db.collection("courses").updateOne({ name }, { ...fieldsToUpdate });
-    } catch (error) {
-      console.error(error);
-    }
-  },
-
-  async deleteCourse(name: string, db: Db) {
-    try {
-      await db.collection("courses").deleteOne({ name });
-    } catch (error) {
-      console.error(error);
-    }
-  },
-};
+  async findByName(name: string) {
+    return await this.collection.findOne({ name });
+  }
+}
