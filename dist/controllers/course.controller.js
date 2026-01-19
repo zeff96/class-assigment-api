@@ -1,16 +1,20 @@
-export async function createCourse(req, res) {
-    try {
-        const db = req.app.locals.db;
-        const course = {
-            ...req.body,
-            createdAt: new Date(),
-        };
-        const result = await db.collection("courses").insertOne(course);
-        res.status(201).json({ ...course, _id: result.insertedId.toHexString() });
+import { CourseModel } from "../models/course.model.js";
+export class CourseController {
+    courseModel;
+    constructor(courseModel) {
+        this.courseModel = courseModel;
     }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal server error", error });
-    }
+    createCourse = async (req, res) => {
+        const result = await this.courseModel.create(req.body);
+        res.status(201).json(result);
+    };
+    getAllCourses = async (_req, res) => {
+        const courses = await this.courseModel.findAll();
+        res.status(200).json(courses);
+    };
+    findByName = async (req, res) => {
+        const course = await this.courseModel.findByName(req.body);
+        res.status(200).json(course);
+    };
 }
 //# sourceMappingURL=course.controller.js.map
