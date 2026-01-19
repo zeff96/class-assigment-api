@@ -1,78 +1,21 @@
 import type { Request, Response } from "express";
-import { Course } from "../models/course.model.js";
+import { CourseModel } from "../models/course.model.js";
 
-async function createCourse(req: Request, res: Response) {
-  try {
-    const db = req.app.locals.db;
+export class CourseController {
+  constructor(private courseModel: CourseModel) {}
 
-    const course = {
-      ...req.body,
-      createdAt: new Date(),
-    };
-
-    const result = await db.collection("courses").insertOne(course);
-    res.status(201).json({ ...course, _id: result.insertedId.toHexString() });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error", error });
+  createCourse = async(req: Request, res: Response) =>{
+    const result = await this.courseModel.create(req.body);
+    res.status(201).json(result);
   }
-}
 
-async function fetchAllCourses(req: Request, res: Response) {
-  try {
-    const db = req.app.locals.db;
-    const coursesLists = (await Course.fetchAllCourses(db)) ?? [];
-    res.status(200).json(coursesLists);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error", error });
+  getAllCourses = async(_req: Request, res: Response) => {
+    const courses = await this.courseModel.findAll();
+    res.status(200).json(courses);
   }
-}
 
-async function findCourseByName(req: Request, res: Response) {
-  try {
-    const db = req.app.locals.db;
-    const name = req.body;
-    const course = await Course.findByName(name, db);
-    if (course === null) {
-      res.status(404).json({ message: `Course with name ${name} not found!` });
-      return;
-    }
+  findByName = async(req: Request, res: Response) =>{
+    const course = await this.courseModel.findByName(req.body);
     res.status(200).json(course);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal Server error", error });
   }
 }
-
-async function updateCourse(req: Request, res: Response) {
-  const body = req.body;
-  try {
-    const db = req.app.locals.db;
-    await Course.updateCourse(body.name, body, db);
-    res.status(201).json({ message: "Course updated successfully!" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal Server error", error });
-  }
-}
-
-async function deleteCourse(req: Request, res: Response) {
-  const name = req.body;
-  try {
-    const db = req.app.locals.db;
-    await Course.deleteCourse(name, db);
-    res.json({ message: `Course with name ${name} deleted successfully!` });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal Server Error", error });
-  }
-}
-
-export {
-  createCourse,
-  fetchAllCourses,
-  findCourseByName,
-  updateCourse,
-  deleteCourse,
-};
