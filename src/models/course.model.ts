@@ -22,4 +22,18 @@ export class CourseModel {
   async findByName(name: string) {
     return await this.collection.findOne({ name });
   }
+
+  async update(data: any) {
+    const { name, code, semester } = data;
+
+    const updatePayload: any = {};
+    updatePayload.code = code;
+    updatePayload.semester = semester;
+
+    await this.collection.updateOne({ name }, { $set: updatePayload });
+  }
+
+  async deleteCourse(name: string) {
+    await this.collection.deleteOne({ name });
+  }
 }
