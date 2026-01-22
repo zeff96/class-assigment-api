@@ -1,31 +1,48 @@
 import type { Request, Response } from "express";
-import { CourseModel } from "../models/course.model.js";
+import type {
+  CreateCourseInput,
+  UpdateCourseInput,
+} from "../schemas/course.schemas.js";
+import type { CourseServices } from "../services/course.service.js";
 
 export class CourseController {
-  constructor(private courseModel: CourseModel) {}
+  constructor(private courseService: CourseServices) {}
 
-  createCourse = async (req: Request, res: Response) => {
-    const result = await this.courseModel.create(req.body);
+  createCourse = async (
+    req: Request<{}, {}, CreateCourseInput>,
+    res: Response,
+  ) => {
+    const result = await this.courseService.createNewCourse(req.body);
     res.status(201).json(result);
   };
 
   getAllCourses = async (_req: Request, res: Response) => {
-    const courses = await this.courseModel.findAll();
+    const courses = await this.courseService.findAllCourses();
     res.status(200).json(courses);
   };
 
-  findByName = async (req: Request<{name: string}>, res: Response) => {
-    const course = await this.courseModel.findByName(req.body.name);
+  findByName = async (req: Request<{ name: string }>, res: Response) => {
+    const course = await this.courseService.findCourseByName(req.params.name);
+    if (!course) {
+      res.status(201).json({ message: "Course not found!" });
+      return;
+    }
     res.status(200).json(course);
   };
 
-  updateCourse = async (req: Request, res: Response) => {
-    const result = await this.courseModel.update(req.body);
+  updateCourse = async (
+    req: Request<{ id: string }, {}, UpdateCourseInput>,
+    res: Response,
+  ) => {
+    const result = await this.courseService.updateExistingCourse(
+      req.params.id,
+      req.body,
+    );
     res.status(201).json(result);
   };
 
-  deleteCourse = async (req: Request, res: Response) => {
-    await this.courseModel.deleteCourse(req.body);
-    res.status(204);
+  deleteCourse = async (req: Request<{ id: string }>, res: Response) => {
+    await this.courseService.deleteExistingCourse(req.params.id);
+    res.status(204).json({ message: "Course deleted successfully!" });
   };
 }
