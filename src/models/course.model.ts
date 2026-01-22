@@ -1,18 +1,25 @@
-import { Collection, Db } from "mongodb";
+import { Collection, Db, ObjectId } from "mongodb";
+import type {
+  CreateCourseInput,
+  ICourse,
+  UpdateCourseInput,
+} from "../schemas/course.schemas.js";
 
 export class CourseModel {
-  private collection: Collection;
+  private collection: Collection<ICourse>;
   constructor(db: Db) {
     this.collection = db.collection("courses");
   }
 
-  async create(data: any) {
-    try {
-      await this.collection.insertOne({
-        ...data,
-        createdAt: new Date(),
-      });
-    } catch (error) {}
+  async create(data: CreateCourseInput) {
+    const doc: ICourse = {
+      ...data,
+      _id: new ObjectId(),
+      createdAt: new Date(),
+    };
+
+    await this.collection.insertOne(doc);
+    return doc;
   }
 
   async findAll() {
@@ -23,17 +30,24 @@ export class CourseModel {
     return await this.collection.findOne({ name });
   }
 
-  async update(data: any) {
+  async update(id: string, data: UpdateCourseInput) {
     const { name, code, semester } = data;
 
-    const updatePayload: any = {};
-    updatePayload.code = code;
-    updatePayload.semester = semester;
+    const updatePayload: Partial<ICourse> = {};
+    if (name) updatePayload.name = name;
+    if (code) updatePayload.code = code;
+    if (semester) updatePayload.semester = semester;
 
-    await this.collection.updateOne({ name }, { $set: updatePayload });
+    const result = await this.collection.findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: updatePayload },
+      { returnDocument: "after" },
+    );
+
+    return result;
   }
 
-  async deleteCourse(name: string) {
-    await this.collection.deleteOne({ name });
+  async deleteCourse(id: string) {
+    await this.collection.deleteOne({ _id: new ObjectId(id) });
   }
 }
