@@ -1,4 +1,4 @@
-import app from "./app.js";
+import { initApp } from "./app.js";
 import { client, connectDB } from "./config/db.config.js";
 import { createDbIndexes } from "./utils/db.indexes.utils.js";
 
@@ -8,7 +8,8 @@ async function createServer() {
   try {
     const db = await connectDB();
     await createDbIndexes(db);
-    app.locals.db = db;
+
+    const app = initApp(db);
 
     const server = app.listen(PORT, () => {
       console.log(`Server started on port: ${PORT}`);
