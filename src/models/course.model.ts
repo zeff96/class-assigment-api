@@ -30,6 +30,10 @@ export class CourseModel {
     return await this.collection.findOne({ name });
   }
 
+  async findById(id: string) {
+    return await this.collection.findOne({ _id: new ObjectId(id) });
+  }
+
   async update(id: string, data: UpdateCourseInput) {
     const { name, code, semester } = data;
 
