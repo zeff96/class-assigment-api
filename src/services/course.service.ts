@@ -1,3 +1,4 @@
+import { AppError } from "../app.error.js";
 import type { CourseModel } from "../models/course.model.js";
 import {
   listResponseSchema,
@@ -27,11 +28,9 @@ export class CourseServices {
   }
 
   async createNewCourse(rawData: CreateCourseInput): Promise<ICourseResponse> {
-    const existing = await this.findCourseByName(rawData.name);
+    const existing = await this.courseModel.findByName(rawData.name);
     if (existing) {
-      const error = new Error("Course already exists!");
-      (error as any).statusCode = 409;
-      throw error;
+      throw new AppError("Course already exists", 409);
     }
 
     const dbResult: ICourse = await this.courseModel.create(rawData);
@@ -45,19 +44,16 @@ export class CourseServices {
   ): Promise<ICourseResponse> {
     const dbUpdate = await this.courseModel.update(id, rawData);
     if (!dbUpdate) {
-      const error = new Error("Course not found!");
-      (error as any).statusCode = 404;
+      throw new AppError("Course not found!", 404);
     }
     return responseSchema.parse(dbUpdate);
   }
 
-  async deleteExistingCourse(name: string): Promise<void> {
-    const existing = await this.courseModel.findByName(name);
+  async deleteExistingCourse(id: string): Promise<void> {
+    const existing = await this.courseModel.findById(id);
     if (!existing) {
-      const error = new Error("Course not found!");
-      (error as any).statusCode = 404;
-      throw error;
+      throw new AppError("Course not found!", 404);
     }
-    await this.courseModel.deleteCourse(existing.name);
+    await this.courseModel.deleteCourse(id);
   }
 }
