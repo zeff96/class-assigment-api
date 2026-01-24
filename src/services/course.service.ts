@@ -54,6 +54,6 @@ export class CourseServices {
     if (!existing) {
       throw new AppError("Course not found!", 404);
     }
-    await this.courseModel.deleteCourse(id);
+    await this.courseModel.deleteById(id);
   }
 }
