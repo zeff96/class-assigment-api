@@ -12,10 +12,12 @@ export class CourseModel {
   }
 
   async create(data: CreateCourseInput) {
+    const now = new Date();
     const doc: ICourse = {
       ...data,
       _id: new ObjectId(),
-      createdAt: new Date(),
+      createdAt: now,
+      updatedAt: now,
     };
 
     await this.collection.insertOne(doc);
@@ -37,7 +39,11 @@ export class CourseModel {
   async update(id: string, data: UpdateCourseInput) {
     const { name, code, semester } = data;
 
-    const updatePayload: Partial<ICourse> = {};
+    const now = new Date();
+
+    const updatePayload: Partial<ICourse> = {
+      updatedAt: now,
+    };
     if (name) updatePayload.name = name;
     if (code) updatePayload.code = code;
     if (semester) updatePayload.semester = semester;
@@ -51,7 +57,7 @@ export class CourseModel {
     return result;
   }
 
-  async deleteCourse(id: string) {
+  async deleteById(id: string) {
     await this.collection.deleteOne({ _id: new ObjectId(id) });
   }
 }
