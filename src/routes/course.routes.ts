@@ -32,7 +32,7 @@ export function setupCourseRoutes(db: Db): Router {
   router.delete(
     "/:id",
     middlewareValidator({ params: courseIdParams }),
-    catchAsync(courseController.deleteCourse),
+    catchAsync(courseController.deleteById),
   );
 
   return router;
