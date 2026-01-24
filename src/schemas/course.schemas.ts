@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
 import z from "zod/v4";
+import { objectIdSchemaUnion } from "../utils/schema.utils.js";
 
 // schemas
 
@@ -11,19 +12,19 @@ export const courseSchema = z.object({
 
 const updateCourseSchema = courseSchema
   .partial()
-  .refine((data) => Object.keys(data).length > 0, {
-    message: "Atleast one field must be provided",
-  });
+  .refine(
+    (data) => Object.keys(data).length > 0,
+    "Atleast one field must be provided",
+  );
 
 export const courseIdParams = z.object({
   id: z.string().min(1),
 });
 
 export const responseSchema = courseSchema.extend({
-  _id: z
-    .union([z.string(), z.instanceof(ObjectId)])
-    .transform((val) => val.toString()),
-  createdAt: z.date(),
+  _id: objectIdSchemaUnion,
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
 export const listResponseSchema = z.array(responseSchema);
@@ -35,6 +36,7 @@ export type CreateCourseInput = z.infer<typeof courseSchema>;
 export interface ICourse extends CreateCourseInput {
   _id: ObjectId;
   createdAt: Date;
+  updatedAt: Date;
 }
 export type ICourseResponse = z.infer<typeof responseSchema>;
 
