@@ -31,7 +31,7 @@ const updateAssignmentSchema = z
 const assignmentResponseSchema = createAssignmentSchema.extend({
   _id: objectIdSchemaUnion,
   createdAt: z.coerce.date(),
-  updateAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
 const listAssignmentSchema = z.array(assignmentResponseSchema);
@@ -39,8 +39,16 @@ const assignmentIdParam = z.object({
   id: z.string().min(1),
 });
 
-type CreateAssignmentInput = z.infer<typeof createAssignmentSchema>;
-type UpdateAssignmentInput = z.infer<typeof updateAssignmentSchema>;
+interface CreateAssignmentInput extends z.infer<
+  typeof createAssignmentSchema
+> {}
+interface UpdateAssignmentInput extends z.infer<
+  typeof updateAssignmentSchema
+> {}
+interface ListAssignmentResponse extends z.infer<typeof listAssignmentSchema> {}
+interface IResponseAssignment extends z.infer<
+  typeof assignmentResponseSchema
+> {}
 
 interface IAssignment extends CreateAssignmentInput {
   _id: ObjectId;
@@ -57,4 +65,6 @@ export {
   type CreateAssignmentInput,
   type UpdateAssignmentInput,
   type IAssignment,
+  type ListAssignmentResponse,
+  type IResponseAssignment,
 };
