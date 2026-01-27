@@ -1,45 +1,26 @@
-import express, {
-  type Express,
-  type NextFunction,
-  type Request,
-  type Response,
-} from "express";
+import express, { type Express } from "express";
 import cors from "cors";
-import z, { ZodError } from "zod";
-import { setupCourseRoutes } from "./routes/course.routes.js";
 import type { Db } from "mongodb";
+import { setupCourseRoutes } from "./routes/course.routes.js";
+import { CourseModel } from "./models/course.model.js";
+import { setupAssignmentRoutes } from "./routes/assignment.routes.js";
+import { globalError } from "./globalError.js";
 
 export function initApp(db: Db): Express {
   const app: Express = express();
 
+  const courseModel = new CourseModel(db);
+  const courseRoutes = setupCourseRoutes(db, courseModel);
+  const assignmentRoutes = setupAssignmentRoutes(db, courseModel);
+
   app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  const courseRoutes = setupCourseRoutes(db);
 
   app.use("/api/v1/courses", courseRoutes);
+  app.use("/api/v1/courses", assignmentRoutes);
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    console.error(err.stack);
-
-    if (err instanceof ZodError) {
-      res.status(400).json({
-        status: "error",
-        errors: z.prettifyError(err),
-      });
-      return;
-    }
-
-    const statusCode = err.statusCode || 500;
-
-    res.status(statusCode).json({
-      status: "error",
-      message:
-        process.env.NODE_ENV === "production"
-          ? "Internal Server Error"
-          : err.message,
-    });
-  });
+  app.use(globalError);
 
   return app;
 }
