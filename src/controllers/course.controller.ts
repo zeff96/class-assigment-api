@@ -24,7 +24,7 @@ export class CourseController {
   findByName = async (req: Request<{ name: string }>, res: Response) => {
     const course = await this.courseService.findCourseByName(req.params.name);
     if (!course) {
-      res.status(201).json({ message: "Course not found!" });
+      res.status(404).json({ message: "Course not found!" });
       return;
     }
     res.status(200).json(course);
