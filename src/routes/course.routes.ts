@@ -8,11 +8,12 @@ import { CourseServices } from "../services/course.service.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import type { Db } from "mongodb";
 
-export function setupCourseRoutes(db: Db): Router {
+export function setupCourseRoutes(db: Db, courseModel: CourseModel): Router {
   const router: Router = Router();
-  const courseModel = new CourseModel(db);
+
   const courseService = new CourseServices(courseModel);
   const courseController = new CourseController(courseService);
+
   router.post(
     "/",
     middlewareValidator({ body: courseSchema }),
