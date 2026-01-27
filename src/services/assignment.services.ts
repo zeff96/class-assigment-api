@@ -29,8 +29,8 @@ export class AssignmentServices {
     return assignmentResponseSchema.parse(result);
   }
 
-  async findAllAssignments(): Promise<ListAssignmentResponse> {
-    const result = await this.assignmentModel.findAll();
+  async findAllAssignments(id: string): Promise<ListAssignmentResponse> {
+    const result = await this.assignmentModel.findAll(id);
 
     return listAssignmentSchema.parse(result);
   }
