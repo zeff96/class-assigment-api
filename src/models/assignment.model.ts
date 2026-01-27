@@ -24,8 +24,8 @@ export class AssignmentModel {
     return assignment;
   }
 
-  async findAll(): Promise<IAssignment[]> {
-    return await this.collection.find({}).toArray();
+  async findAll(id: string): Promise<IAssignment[]> {
+    return await this.collection.find({ courseId: new ObjectId(id) }).toArray();
   }
 
   async updateById(
