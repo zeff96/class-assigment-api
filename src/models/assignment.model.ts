@@ -11,11 +11,15 @@ export class AssignmentModel {
     this.collection = db.collection("assignments");
   }
 
-  async create(rawData: CreateAssignmentInput): Promise<IAssignment> {
+  async create(
+    id: string,
+    rawData: CreateAssignmentInput,
+  ): Promise<IAssignment> {
     const now = new Date();
     const assignment: IAssignment = {
       ...rawData,
       _id: new ObjectId(),
+      courseId: new ObjectId(id),
       createdAt: now,
       updatedAt: now,
     };
