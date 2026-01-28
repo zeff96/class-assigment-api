@@ -30,7 +30,10 @@ export function setupAssignmentRoutes(
   // api endpoints
   router.post(
     "/:courseId/assignments",
-    middlewareValidator({ body: createAssignmentSchema }),
+    middlewareValidator({
+      body: createAssignmentSchema,
+      params: courseIdParams,
+    }),
     catchAsync(assignmentController.createNewAssignment),
   );
 
