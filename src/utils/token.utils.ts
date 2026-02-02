@@ -6,7 +6,15 @@ interface Payload {
 }
 
 function encode(payload: Payload, secret: string) {
-  return jwt.sign(payload, secret, { algorithm: "HS256", expiresIn: 60 * 15 });
+  return new Promise((resolve, reject) => {
+    jwt.sign(payload, secret, { algorithm: "HS256" }, function (error, token) {
+      if (error || !token) {
+        reject(error);
+      } else {
+        resolve(token);
+      }
+    });
+  });
 }
 
 function decode(token: string, secret: string) {
