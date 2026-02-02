@@ -18,7 +18,15 @@ function encode(payload: Payload, secret: string) {
 }
 
 function decode(token: string, secret: string) {
-  return jwt.verify(token, secret, { complete: true });
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, secret, function (error, decoded) {
+      if (error || !decoded) {
+        reject(error);
+      } else {
+        resolve(decoded);
+      }
+    });
+  });
 }
 
 export { encode, decode };
